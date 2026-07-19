@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 
 import '../models/connected_device.dart';
+import '../models/message_type.dart';
+import '../models/network_message.dart';
 import 'discovery_service.dart';
 import 'tcp_client_service.dart';
 import 'tcp_server_service.dart';
@@ -10,7 +14,10 @@ class ConnectionManager extends ChangeNotifier {
     required this.discoveryService,
     required this.tcpServer,
     required this.tcpClient,
-  });
+  }) {
+    tcpServer.onMessage = _handleServerMessage;
+    tcpClient.onMessage = _handleClientMessage;
+  }
 
   final DiscoveryService discoveryService;
   final TcpServerService tcpServer;
@@ -25,8 +32,7 @@ class ConnectionManager extends ChangeNotifier {
 
   bool get isConnected => _isConnected;
 
-  List<ConnectedDevice> get devices =>
-      List.unmodifiable(_devices);
+  List<ConnectedDevice> get devices => List.unmodifiable(_devices);
 
   Future<void> startHosting({
     required String sessionName,
@@ -84,27 +90,32 @@ class ConnectionManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addDevice(ConnectedDevice device) {
-    _devices.removeWhere(
-      (d) => d.id == device.id,
-    );
+  void _handleServerMessage(
+    Socket socket,
+    NetworkMessage message,
+  ) {
+    switch (message.type) {
+      case MessageType.join:
+        debugPrint(
+          "JOIN received from ${socket.remoteAddress.address}",
+        );
+        break;
 
-    _devices.add(device);
-
-    notifyListeners();
+      default:
+        debugPrint(
+          "Unhandled server message: ${message.type.value}",
+        );
+    }
   }
 
-  void removeDevice(String id) {
-    _devices.removeWhere(
-      (d) => d.id == id,
-    );
-
-    notifyListeners();
-  }
-
-  void clearDevices() {
-    _devices.clear();
-
-    notifyListeners();
+  void _handleClientMessage(
+    NetworkMessage message,
+  ) {
+    switch (message.type) {
+      default:
+        debugPrint(
+          "Unhandled client message: ${message.type.value}",
+        );
+    }
   }
 }

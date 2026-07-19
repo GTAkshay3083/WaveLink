@@ -2,10 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import '../models/message_type.dart';
+
 import 'package:flutter/foundation.dart';
 
-import '../models/message_type.dart';
 import '../models/network_message.dart';
+
+typedef ClientMessageHandler = void Function(
+  NetworkMessage message,
+);
 
 class TcpClientService extends ChangeNotifier {
   Socket? _socket;
@@ -13,6 +18,8 @@ class TcpClientService extends ChangeNotifier {
   StreamSubscription<List<int>>? _subscription;
 
   final StringBuffer _buffer = StringBuffer();
+
+  ClientMessageHandler? onMessage;
 
   bool get isConnected => _socket != null;
 
@@ -94,6 +101,8 @@ class TcpClientService extends ChangeNotifier {
         final message = NetworkMessage.decode(rawMessage);
 
         debugPrint("Received: ${message.type.value}");
+
+        onMessage?.call(message);
       } catch (e) {
         debugPrint("Message Parse Error: $e");
       }
