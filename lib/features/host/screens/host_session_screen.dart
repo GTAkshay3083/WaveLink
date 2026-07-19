@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/host_session.dart';
+import '../models/device.dart';
+import '../services/host_service.dart';
 
-class HostSessionScreen extends StatelessWidget {
-  final HostSession session;
-
-  const HostSessionScreen({
-    super.key,
-    required this.session,
-  });
+class HostSessionScreen extends ConsumerWidget {
+  const HostSessionScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final session = ref.watch(hostServiceProvider);
+
+    if (session == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('No active session'),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Host Session"),
+        title: const Text('Host Session'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -23,39 +30,28 @@ class HostSessionScreen extends StatelessWidget {
           children: [
             Card(
               child: ListTile(
-                leading: const Icon(
-                  Icons.music_note,
-                  size: 40,
-                ),
+                leading: const Icon(Icons.music_note, size: 40),
                 title: Text(session.selectedSong.title),
                 subtitle: Text(session.selectedSong.artist),
               ),
             ),
-
-            const SizedBox(height: 25),
-
+            const SizedBox(height: 24),
             Text(
-              "Session Name",
+              'Session Name',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-
             const SizedBox(height: 8),
-
             Card(
               child: ListTile(
                 title: Text(session.sessionName),
               ),
             ),
-
-            const SizedBox(height: 25),
-
+            const SizedBox(height: 24),
             Text(
-              "Room Code",
+              'Room Code',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-
             const SizedBox(height: 8),
-
             Card(
               child: ListTile(
                 leading: const Icon(Icons.key),
@@ -64,40 +60,48 @@ class HostSessionScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    letterSpacing: 3,
+                    letterSpacing: 4,
                   ),
                 ),
               ),
             ),
-
-            const SizedBox(height: 25),
-
+            const SizedBox(height: 24),
             Text(
-              "Connected Devices",
+              'Connected Devices',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-
             const SizedBox(height: 8),
+            Expanded(
+              child: ListView.builder(
+                itemCount: session.devices.length,
+                itemBuilder: (context, index) {
+                  final Device device = session.devices[index];
 
-            const Card(
-              child: ListTile(
-                leading: CircleAvatar(
-                  child: Icon(Icons.phone_android),
-                ),
-                title: Text("Host Device"),
-                subtitle: Text("1 device connected"),
+                  return Card(
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        child: Icon(
+                          device.isHost
+                              ? Icons.wifi_tethering
+                              : Icons.phone_android,
+                        ),
+                      ),
+                      title: Text(device.name),
+                      subtitle: Text(
+                        device.isHost ? 'Host' : 'Guest',
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
-
-            const Spacer(),
-
             SizedBox(
               width: double.infinity,
               height: 55,
               child: ElevatedButton.icon(
                 onPressed: null,
                 icon: const Icon(Icons.play_arrow),
-                label: const Text("Start Music"),
+                label: const Text('Start Music'),
               ),
             ),
           ],

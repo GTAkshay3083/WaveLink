@@ -1,20 +1,23 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../music/models/song.dart';
 import '../../music/screens/music_library_screen.dart';
+import '../models/device.dart';
 import '../models/host_session.dart';
+import '../services/host_service.dart';
 import 'host_session_screen.dart';
 
-class HostSetupScreen extends StatefulWidget {
+class HostSetupScreen extends ConsumerStatefulWidget {
   const HostSetupScreen({super.key});
 
   @override
-  State<HostSetupScreen> createState() => _HostSetupScreenState();
+  ConsumerState<HostSetupScreen> createState() => _HostSetupScreenState();
 }
 
-class _HostSetupScreenState extends State<HostSetupScreen> {
+class _HostSetupScreenState extends ConsumerState<HostSetupScreen> {
   Song? selectedSong;
 
   final TextEditingController sessionController = TextEditingController();
@@ -44,7 +47,7 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
     ).join();
   }
 
-  void _continue() {
+  Future<void> _continue() async {
     if (selectedSong == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -62,14 +65,23 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
       sessionName: sessionName,
       selectedSong: selectedSong!,
       roomCode: _generateRoomCode(),
+      devices: const [
+        Device(
+          id: 'host',
+          name: 'Host Device',
+          isHost: true,
+        ),
+      ],
     );
+
+    await ref.read(hostServiceProvider.notifier).createSession(session);
+
+    if (!mounted) return;
 
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => HostSessionScreen(
-          session: session,
-        ),
+        builder: (_) => const HostSessionScreen(),
       ),
     );
   }
@@ -98,9 +110,7 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 10),
-
             TextField(
               controller: sessionController,
               decoration: InputDecoration(
@@ -110,9 +120,7 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 30),
-
             const Text(
               'Selected Song',
               style: TextStyle(
@@ -120,9 +128,7 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 10),
-
             Card(
               child: ListTile(
                 leading: const Icon(Icons.music_note),
@@ -134,9 +140,7 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
-
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -145,9 +149,7 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
                 label: const Text('Choose Music'),
               ),
             ),
-
             const Spacer(),
-
             SizedBox(
               width: double.infinity,
               height: 55,

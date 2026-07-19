@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'features/home/screens/home_screen.dart';
+
 void main() {
-  runApp(const WaveLinkApp());
+  runApp(
+    const ProviderScope(
+      child: WaveLinkApp(),
+    ),
+  );
 }
 
 class WaveLinkApp extends StatelessWidget {
@@ -20,8 +27,7 @@ class WaveLinkApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
       ),
-      home: HomeScreen(),
+      home: const HomeScreen(),
     );
   }
 }
-
