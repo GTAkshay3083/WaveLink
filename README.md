@@ -1,17 +1,48 @@
-# wavelink
+# WaveLink
 
-A new Flutter project.
+> Turn every phone into part of the speaker.
 
-## Getting Started
+## Overview
 
-This project is a starting point for a Flutter application.
+WaveLink is a Flutter application that transforms multiple smartphones into one synchronized speaker system using a local Wi-Fi network.
 
-A few resources to get you started if this is your first Flutter project:
+One device becomes the host while nearby devices join as speakers, creating a louder and more immersive listening experience without requiring a Bluetooth speaker.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Why WaveLink?
+
+Sometimes you don't have a speaker.
+
+Sometimes speakers aren't allowed.
+
+Sometimes everyone already has a phone.
+
+WaveLink lets everyone contribute.
+
+---
+
+## Planned Features
+
+- 🎵 Create Room
+- 📱 Join Room
+- 📡 Local Wi-Fi Audio Streaming
+- 🔄 Synchronized Playback
+- 📷 QR Code Joining
+- 🎚 Device Volume Control
+
+---
+
+## Tech Stack
+
+- Flutter
+- Dart
+- Git
+- GitHub
+- Local Wi-Fi Networking
+
+---
+
+## Project Status
+
+🚧 Under active development.
