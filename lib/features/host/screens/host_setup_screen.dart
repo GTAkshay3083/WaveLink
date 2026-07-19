@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../../music/models/song.dart';
 import '../../music/screens/music_library_screen.dart';
+import '../models/host_session.dart';
+import 'host_session_screen.dart';
 
 class HostSetupScreen extends StatefulWidget {
   const HostSetupScreen({super.key});
@@ -16,9 +20,6 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
   final TextEditingController sessionController = TextEditingController();
 
   Future<void> _chooseSong() async {
-    debugPrint("BUTTON PRESSED");
-    debugPrint("Opening Music Library");
-
     final Song? song = await Navigator.push<Song>(
       context,
       MaterialPageRoute(
@@ -26,15 +27,51 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
       ),
     );
 
-    debugPrint("Returned from Music Library");
-
     if (song != null) {
-      debugPrint("Song Selected: ${song.title}");
-
       setState(() {
         selectedSong = song;
       });
     }
+  }
+
+  String _generateRoomCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final random = Random();
+
+    return List.generate(
+      6,
+      (_) => chars[random.nextInt(chars.length)],
+    ).join();
+  }
+
+  void _continue() {
+    if (selectedSong == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please choose a song first.'),
+        ),
+      );
+      return;
+    }
+
+    final sessionName = sessionController.text.trim().isEmpty
+        ? 'My Awesome Party'
+        : sessionController.text.trim();
+
+    final session = HostSession(
+      sessionName: sessionName,
+      selectedSong: selectedSong!,
+      roomCode: _generateRoomCode(),
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => HostSessionScreen(
+          session: session,
+        ),
+      ),
+    );
   }
 
   @override
@@ -47,7 +84,7 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Host a Session"),
+        title: const Text('Host a Session'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -55,7 +92,7 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Session Name",
+              'Session Name',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -67,7 +104,7 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
             TextField(
               controller: sessionController,
               decoration: InputDecoration(
-                hintText: "My Awesome Party",
+                hintText: 'My Awesome Party',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -77,7 +114,7 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
             const SizedBox(height: 30),
 
             const Text(
-              "Selected Song",
+              'Selected Song',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -90,10 +127,10 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
               child: ListTile(
                 leading: const Icon(Icons.music_note),
                 title: Text(
-                  selectedSong?.title ?? "No song selected",
+                  selectedSong?.title ?? 'No song selected',
                 ),
                 subtitle: Text(
-                  selectedSong?.artist ?? "Choose a local song",
+                  selectedSong?.artist ?? 'Choose a local song',
                 ),
               ),
             ),
@@ -105,7 +142,7 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
               child: ElevatedButton.icon(
                 onPressed: _chooseSong,
                 icon: const Icon(Icons.library_music),
-                label: const Text("Choose Music"),
+                label: const Text('Choose Music'),
               ),
             ),
 
@@ -115,8 +152,8 @@ class _HostSetupScreenState extends State<HostSetupScreen> {
               width: double.infinity,
               height: 55,
               child: ElevatedButton(
-                onPressed: () {},
-                child: const Text("Continue"),
+                onPressed: _continue,
+                child: const Text('Continue'),
               ),
             ),
           ],
